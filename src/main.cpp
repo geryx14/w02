@@ -58,7 +58,7 @@ void loop() {
         String frequencyStr = String(frequency, 1);
         String pfStr = String(pf, 2);
 
-        mqttClient.publish(MQTT_TOPIC, time, voltageStr, currentStr, powerStr, energyStr, frequencyStr, pfStr);
+        mqttClient.publish(MQTT_TOPIC,voltageStr, currentStr, powerStr, energyStr, frequencyStr, pfStr);
         
         Serial.println("Data Published to MQTT!");
     }

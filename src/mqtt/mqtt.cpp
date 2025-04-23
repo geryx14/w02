@@ -29,19 +29,18 @@ void MqttClient::reconnect() {
     }
 }
 
-void MqttClient::publish(String topic, String time, String voltage, String current, String power, String energy, String frequency, String pf) {
+void MqttClient::publish(String topic, String voltage, String current, String power, String energy, String frequency, String pf) {
     if (!mqttClient.connected()) {
         reconnect();
     }
     
     String payload = "{";
-    payload += "\"time\":\"" + time + "\",";
-    payload += "\"voltage\":\"" + voltage + "\",";
-    payload += "\"current\":\"" + current + "\",";
-    payload += "\"power\":\"" + power + "\",";
-    payload += "\"energy\":\"" + energy + "\",";
-    payload += "\"frequency\":\"" + frequency + "\",";
-    payload += "\"pf\":\"" + pf + "\"";
+    payload += "\"v\":\"" + voltage + "\",";
+    payload += "\"I\":\"" + current + "\",";
+    payload += "\"P\":\"" + power + "\",";
+    payload += "\"E\":\"" + energy + "\",";
+    payload += "\"F\":\"" + frequency + "\",";
+    payload += "\"PF\":\"" + pf + "\"";
     payload += "}";
 
     mqttClient.publish(topic.c_str(), payload.c_str());

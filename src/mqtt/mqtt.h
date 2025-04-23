@@ -32,7 +32,7 @@ public:
     /**
      * Mengirim pesan ke topik tertentu
      */
-    void publish(String topic, String time, String voltage, String current, String power, String energy, String frequency, String pf);
+    void publish(String topic, String voltage, String current, String power, String energy, String frequency, String pf);
 
 
     /**
