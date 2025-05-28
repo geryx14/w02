@@ -25,3 +25,14 @@ float PZEMSensor::getPower() { return power; }
 float PZEMSensor::getEnergy() { return energy; }
 float PZEMSensor::getFrequency() { return frequency; }
 float PZEMSensor::getPF() { return pf; }
+
+bool PZEMSensor::resetEnergy() {
+    bool success = pzem.resetEnergy();
+    if (success) {
+        Serial.println("Energi berhasil direset.");
+    } else {
+        Serial.println("Gagal mereset energi.");
+    }
+    return success;
+
+}

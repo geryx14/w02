@@ -19,6 +19,7 @@ public:
     float getEnergy();
     float getFrequency();
     float getPF();
+    bool resetEnergy();
 
 private:
     PZEM004Tv30 pzem;
