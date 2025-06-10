@@ -29,12 +29,13 @@ void MqttClient::reconnect() {
     }
 }
 
-void MqttClient::publish(String topic, String voltage, String current, String power, String energy, String frequency, String pf) {
+void MqttClient::publish(String topic,String timestamp, String voltage, String current, String power, String energy, String frequency, String pf) {
     if (!mqttClient.connected()) {
         reconnect();
     }
     
     String payload = "{";
+    payload += "\"timestamp\":\"" + timestamp + "\",";
     payload += "\"v\":\"" + voltage + "\",";
     payload += "\"I\":\"" + current + "\",";
     payload += "\"P\":\"" + power + "\",";
