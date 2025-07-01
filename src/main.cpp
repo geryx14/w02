@@ -21,6 +21,7 @@
  */
 NTPTime ntp("pool.ntp.org", 7 * 3600, 0);
 String globalTime = "00:00:00"; 
+bool energyResetDone = false;
 
 MqttClient mqttClient(MQTT_SERVER, MQTT_PORT, MQTT_USER, MQTT_PASSWORD);
 unsigned long lastPublishTime = 0;
@@ -41,49 +42,53 @@ void setup() {
 
     ntp.begin();
 
-    if (sensor.resetEnergy()) {
-        Serial.println("Energy reset berhasil!");
-    } else {
-        Serial.println("Gagal reset energy.");
-    }
-
     mqttClient.init();
     sensor.begin();
     oled.begin();
 }
 
 void loop() {
-   
-mqttClient.loop();  
-unsigned long currentMillis = millis(); 
+    mqttClient.loop();
+    unsigned long currentMillis = millis();
 
-  /**
-   * inisiasi waktu
-   */
-  ntp.update();  
-  globalTime = ntp.getCurrentTime();  
+    ntp.update();  
+    globalTime = ntp.getCurrentTime();  
 
-sensor.update();
-float voltage = sensor.getVoltage();
-float current = sensor.getCurrent();
-float power = sensor.getPower();
-float energy = sensor.getEnergy();
-float frequency = sensor.getFrequency();
-float pf = sensor.getPF();
-oled.updateDisplay(voltage, current, power, energy);
-if (currentMillis - lastPublishTime >= PUBLISH_INTERVAL_MS) {
-    lastPublishTime = currentMillis; 
+    sensor.update();
+    float voltage = sensor.getVoltage();
+    float current = sensor.getCurrent();
+    float power = sensor.getPower();
+    float energy = sensor.getEnergy();
+    float frequency = sensor.getFrequency();
+    float pf = sensor.getPF();
 
-    String time = String(currentMillis);  
-    String voltageStr = String(voltage, 2);
-    String currentStr = String(current, 2);
-    String powerStr = String(power, 2);
-    String energyStr = String(energy, 3);
-    String frequencyStr = String(frequency, 1);
-    String pfStr = String(pf, 2);
+    oled.updateDisplay(voltage, current, power, energy);
 
-    mqttClient.publish(MQTT_TOPIC,globalTime,voltageStr, currentStr, powerStr, energyStr, frequencyStr, pfStr);
-    
-    Serial.println("Data Published to MQTT!");
-}
+    // Reset Energy hanya sekali di jam 23:00:00
+    if (globalTime == "23:00:00" && !energyResetDone) {
+        sensor.resetEnergy();
+        energyResetDone = true;
+        Serial.println("Energy Reset at 23:00!");
+    }
+
+    // Reset flag setelah jam 23:00 lewat
+    if (globalTime != "23:00:00") {
+        energyResetDone = false;
+    }
+
+    if (currentMillis - lastPublishTime >= PUBLISH_INTERVAL_MS) {
+        lastPublishTime = currentMillis;
+
+        String time = globalTime;  
+        String voltageStr = String(voltage, 2);
+        String currentStr = String(current, 2);
+        String powerStr = String(power, 2);
+        String energyStr = String(energy, 3);
+        String frequencyStr = String(frequency, 1);
+        String pfStr = String(pf, 2);
+
+        mqttClient.publish(MQTT_TOPIC, time, voltageStr, currentStr, powerStr, energyStr, frequencyStr, pfStr);
+
+        Serial.println("Data Published to MQTT!");
+    }
 }
